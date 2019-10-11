@@ -31479,6 +31479,46 @@ a.text-muted:hover {
   background-color: #ffffff;
   border-color: #dee2e6;
 }@charset "UTF-8";
+.blue {
+  color: #3490dc;
+}
+
+.red {
+  color: #e3342f;
+}
+
+.purple {
+  color: #9561e2;
+}
+
+.yellow {
+  color: #ffed4a;
+}
+
+.orange {
+  color: #f6993f;
+}
+
+.cyan {
+  color: #6cb2eb;
+}
+
+.indigo {
+  color: #6574cd;
+}
+
+.green {
+  color: #38c172;
+}
+
+.teal {
+  color: #4dc0b5;
+}
+
+.pink {
+  color: #f66d9b;
+}
+
 /*!
  * Bootstrap v4.3.1 (https://getbootstrap.com/)
  * Copyright 2011-2019 The Bootstrap Authors
@@ -41197,4 +41237,8 @@ h3 {
     color: inherit;
     border-color: #dee2e6;
   }
+}
+.router-link-exact-active, .router-link-active {
+  color: #fff !important;
+  background-color: #3f51bf !important;
 }
