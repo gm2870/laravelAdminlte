@@ -6,7 +6,7 @@
           <div class="card-header">
             <h3 class="card-title">Users Table</h3>
             <div class="card-tools">
-              <button class="btn btn-success" data-toggle="modal" data-target="#addNew">
+              <button class="btn btn-success" @click="newModal">
                 Add New
                 <i class="fa fa-user-plus fa-fw"></i>
               </button>
@@ -34,10 +34,10 @@
                   <td>{{user.created_at | beautifyDate }}</td>
 
                   <td>
-                    <a href="#">
+                    <a href="#" @click="editModal(user)">
                       <i class="fa fa-edit blue"></i>
                     </a>
-                    <a href>
+                    <a href="#" @click="deleteUser(user.id)">
                       <i class="fa fa-trash-alt red"></i>
                     </a>
                   </td>
@@ -62,12 +62,14 @@
       <div class="modal-dialog" role="document">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title" id="addNewLabel">Add New</h5>
+            <h5 class="modal-title" v-show="editMode" id="addNewLabel">Update</h5>
+            <h5 class="modal-title" v-show="!editMode" id="addNewLabel">Add New</h5>
+
             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
               <span aria-hidden="true">&times;</span>
             </button>
           </div>
-          <form @submit.prevent="createUser">
+          <form @submit.prevent="editMode ? updateUser() : createUser()">
             <div class="modal-body">
               <div class="form-group">
                 <input
@@ -132,7 +134,8 @@
             </div>
             <div class="modal-footer">
               <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
-              <button type="submit" class="btn btn-primary">Create</button>
+              <button type="submit" v-show="editMode" class="btn btn-success">Update</button>
+              <button type="submit" v-show="!editMode" class="btn btn-primary">Create</button>
             </div>
           </form>
         </div>
@@ -145,8 +148,10 @@
 export default {
   data() {
     return {
+      editMode: false,
       users: {},
       form: new Form({
+        id: "",
         name: "",
         email: "",
         password: "",
@@ -157,6 +162,55 @@ export default {
     };
   },
   methods: {
+    updateUser() {
+      this.$Progress.start();
+      this.form
+        .put(`api/user/${this.form.id}`)
+        .then(() => {
+          $("#addNew").modal("hide");
+          Swal.fire("Updated!", "info has been updated.", "success");
+          this.$Progress.finish();
+          Fire.$emit("afterUserCreated");
+        })
+        .catch(() => {
+          this.$Progress.fail();
+        });
+    },
+    editModal(user) {
+      this.editMode = true;
+      this.form.reset();
+      $("#addNew").modal("show");
+      this.form.fill(user);
+    },
+    newModal() {
+      this.editMode = false;
+      this.form.reset();
+      $("#addNew").modal("show");
+    },
+    deleteUser(id) {
+      Swal.fire({
+        title: "Are you sure?",
+        text: "You won't be able to revert this!",
+        type: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Yes, delete it!"
+      }).then(result => {
+        // send request to the server
+        if (result.value) {
+          this.form
+            .delete(`api/user/${id}`)
+            .then(() => {
+              Swal.fire("Deleted!", "the user has been deleted.", "success");
+              Fire.$emit("afterUserCreated");
+            })
+            .catch(error => {
+              Swal.fire("Failed!", "the user has not been deleted.", "warning");
+            });
+        }
+      });
+    },
     loadUsers() {
       axios.get("api/user").then(({ data }) => {
         this.users = data.data;
