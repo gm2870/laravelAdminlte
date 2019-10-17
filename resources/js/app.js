@@ -1,74 +1,90 @@
-
 /**
  * First we will load all of this project's JavaScript dependencies which
  * includes Vue and other libraries. It is a great starting point when
  * building robust, powerful web applications using Vue and Laravel.
  */
 
-require('./bootstrap');
+require("./bootstrap");
 
-window.Vue = require('vue');
-import VueRouter from 'vue-router';
-import { Form, HasError, AlertError } from 'vform';
-import Moment from 'moment';
-import VueProgressBar from 'vue-progressbar';
-import Swal from 'sweetalert2';
+window.Vue = require("vue");
+import VueRouter from "vue-router";
+import { Form, HasError, AlertError } from "vform";
+import Moment from "moment";
+import VueProgressBar from "vue-progressbar";
+import Swal from "sweetalert2";
+import Gate from "./components/Gate";
+// import pagination from 'laravel-vue-pagination';
+Vue.prototype.$gate = new Gate(window.user);
+
 window.Swal = Swal;
-window.Form = Form
-Vue.component(HasError.name, HasError)
-Vue.component(AlertError.name, AlertError)
+window.Form = Form;
+Vue.component(HasError.name, HasError);
+Vue.component(AlertError.name, AlertError);
 Vue.use(VueRouter);
 
 let routes = [
-    {path:'/dashboard', component:require('./components/dashboard.vue').default},
-    {path:'/developer', component:require('./components/developer.vue').default},
-    {path:'/users', component:require('./components/users.vue').default},
-    {path:'/profile', component:require('./components/profile.vue').default},
+    {
+        path: "/dashboard",
+        component: require("./components/dashboard.vue").default
+    },
+    {
+        path: "/developer",
+        component: require("./components/developer.vue").default
+    },
+    { path: "/users", component: require("./components/users.vue").default },
+    {
+        path: "/profile",
+        component: require("./components/profile.vue").default
+    },
+    { path: "*", component: require("./components/notFound.vue").default }
+
     // { path: '*', redirect: Dashboard }
-      
 ];
 
 const router = new VueRouter({
-    mode:'history',
+    mode: "history",
     routes //short for routes:routes
 });
 
-Vue.filter('upText',function (text) {
+Vue.filter("upText", function(text) {
     return text.charAt(0).toUpperCase() + text.slice(1);
 });
-Vue.filter('beautifyDate',function (date) {
-    return Moment(date).format('MMMM Do YYYY');
+Vue.filter("beautifyDate", function(date) {
+    return Moment(date).format("MMMM Do YYYY");
 });
 
-Vue.use(VueProgressBar,{
-    color:'rgb(143,255,191)',
-    failedColor:'red',
-    height:'3px'
+Vue.use(VueProgressBar, {
+    color: "rgb(143,255,191)",
+    failedColor: "red",
+    height: "3px"
 });
 const toast = Swal.mixin({
     toast: true,
-    position: 'top-end',
+    position: "top-end",
     showConfirmButton: false,
     timer: 3000
-  });
-  window.toast = toast;
+});
+window.toast = toast;
 
-  window.Fire = new Vue();
+window.Fire = new Vue();
 
-  Vue.component(
-    'passport-clients',
-    require('./components/passport/Clients.vue').default
+Vue.component(
+    "passport-clients",
+    require("./components/passport/Clients.vue").default
 );
 
 Vue.component(
-    'passport-authorized-clients',
-    require('./components/passport/AuthorizedClients.vue').default
+    "passport-authorized-clients",
+    require("./components/passport/AuthorizedClients.vue").default
 );
 
 Vue.component(
-    'passport-personal-access-tokens',
-    require('./components/passport/PersonalAccessTokens.vue').default
+    "passport-personal-access-tokens",
+    require("./components/passport/PersonalAccessTokens.vue").default
 );
+Vue.component("not-found", require("./components/notFound.vue").default);
+Vue.component("pagination", require("laravel-vue-pagination"));
+
 /**
  * The following block of code may be used to automatically register your
  * Vue components. It will recursively scan this directory for the Vue
@@ -89,5 +105,14 @@ Vue.component(
  */
 
 const app = new Vue({
-    router
-}).$mount('#app');
+    el: "#app",
+    router,
+    data: {
+        search: ""
+    },
+    methods: {
+        searchIt() {
+            Fire.$emit("searching");
+        }
+    }
+});
